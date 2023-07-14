@@ -9,3 +9,4 @@ The set of $c$ for which the repeated application of  function $f(z) = z^2 + c$ 
 ***
 ### Requirements
 
+* glfw3

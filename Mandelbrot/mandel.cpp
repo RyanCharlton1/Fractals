@@ -30,6 +30,7 @@ int main(){
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow *window = glfwCreateWindow(800, 600, "Mandelbrot", NULL, NULL);
     if(!window){
@@ -38,8 +39,20 @@ int main(){
     }
     
     glfwMakeContextCurrent(window);
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+        std::cout << "GLAD failed" << std::endl;
+        return -1;
+    }
     glfwSwapInterval(1);
+    
+    int frameBufferWidth, frameBufferHeight;
+    glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+    glViewport(0, 0, frameBufferWidth, frameBufferHeight);
+
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LEQUAL);
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
 
     glfwSetKeyCallback(window, keycallback);
 
@@ -101,6 +114,7 @@ int main(){
         // Clear up shader
         glDeleteShader(vert);
     }
+
     // Repeat for frag
     if(fragcomp == 0){
         glGetShaderiv(frag, GL_INFO_LOG_LENGTH, &loglen);
@@ -143,7 +157,26 @@ int main(){
         glDeleteProgram(prog);
     }
 
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screen), screen, GL_STATIC_DRAW);
+
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, 0);
+    glEnableVertexAttribArray(0);  
+    
     while(!glfwWindowShouldClose(window)){
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(prog);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
