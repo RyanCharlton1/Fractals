@@ -33,12 +33,12 @@ int main(){
     }
     
     glfwMakeContextCurrent(window);
-    gladLoadGL(glfwGetProcAddress);
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSwapInterval(1);
 
     glfwSetKeyCallback(window, keycallback);
 
-    
+
 
     while(!glfwWindowShouldClose(window)){
         glfwSwapBuffers(window);
