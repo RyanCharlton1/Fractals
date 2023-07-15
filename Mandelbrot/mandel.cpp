@@ -4,8 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 //#define DEBUG
+#define WIDTH 800
+#define HEIGHT 600
+
+float targetx = -2.5, targety = 1.0;
+float rangex = 3.5, rangey = -2.0;
 
 // Square mesh over the screen
 const float screen[] = {
@@ -15,11 +21,16 @@ const float screen[] = {
      
      1.0f, 1.0f,
      1.0f, -1.0f,
-    -1.0f, -1.0f};
+    -1.0f, -1.0f
+};
 
 void keycallback(GLFWwindow *win, int key, int scancode, int action, int mods){
     if (key == GLFW_KEY_ESCAPE)
             glfwSetWindowShouldClose(win, GLFW_TRUE);
+}
+
+void resizecallback(GLFWwindow *win, int width, int height){
+    glViewport(0, 0, width, height);
 }
 
 int main(){
@@ -32,7 +43,7 @@ int main(){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Mandelbrot", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Mandelbrot", NULL, NULL);
     if(!window){
         glfwTerminate();
         return -1;
@@ -48,14 +59,8 @@ int main(){
     int frameBufferWidth, frameBufferHeight;
     glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
     glViewport(0, 0, frameBufferWidth, frameBufferHeight);
-
-    //glEnable(GL_DEPTH_TEST);
-    //glDepthFunc(GL_LEQUAL);
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
-
     glfwSetKeyCallback(window, keycallback);
-
+    glfwSetWindowSizeCallback(window, resizecallback);
     int vert, frag;
     int prog;
 
@@ -170,12 +175,19 @@ int main(){
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, 0);
     glEnableVertexAttribArray(0);  
     
+    float test = 0.0;
     while(!glfwWindowShouldClose(window)){
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(prog);
         glBindVertexArray(vao);
+        glUniform1f(glGetUniformLocation(prog, "targetx"), targetx);
+        glUniform1f(glGetUniformLocation(prog, "targety"), targety);
+        glUniform1f(glGetUniformLocation(prog, "rangex"), rangex);
+        glUniform1f(glGetUniformLocation(prog, "rangey"), rangey);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        test += 0.01;
 
         glfwSwapBuffers(window);
         glfwPollEvents();
