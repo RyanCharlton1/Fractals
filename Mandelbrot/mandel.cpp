@@ -10,8 +10,8 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-float targetx = -2.5, targety = 1.0;
-float rangex = 3.5, rangey = -2.0;
+float targetx = -2.5, targety = -1.0;
+float rangex = 3.5, rangey = 2.0;
 
 // Square mesh over the screen
 const float screen[] = {
@@ -27,10 +27,82 @@ const float screen[] = {
 void keycallback(GLFWwindow *win, int key, int scancode, int action, int mods){
     if (key == GLFW_KEY_ESCAPE)
             glfwSetWindowShouldClose(win, GLFW_TRUE);
+
+    if (key == GLFW_KEY_R && action == GLFW_PRESS){
+        targetx = -2.5;
+        targety = 1.0;
+        rangex = 3.5;
+        rangey = -2.0;
+    }
 }
 
 void resizecallback(GLFWwindow *win, int width, int height){
     glViewport(0, 0, width, height);
+}
+
+int MOUSE = GLFW_RELEASE;
+double lastx, lasty;
+void clickcallback(GLFWwindow *win, int button, int action, int mods){
+    // Mouse will be se to GLFW_PRESS or GLFW_RELEASE and curson position is noted
+    if (button == GLFW_MOUSE_BUTTON_LEFT){
+        MOUSE = action;
+        glfwGetCursorPos(win, &lastx, &lasty);
+    }
+}
+
+void input(GLFWwindow *win){
+    if (MOUSE == GLFW_PRESS){
+        // Get current curson position
+        double currentx, currenty;
+        glfwGetCursorPos(win, &currentx, &currenty);
+
+        // Find diffence in cursor between frames
+        double diffx = currentx - lastx;
+        double diffy = currenty - lasty;
+
+        // get window dimensions for scaling
+        int w, h;
+        glfwGetWindowSize(win, &w, &h);
+
+        // Shift target by the (scaled) distance moved 
+        targetx -= diffx / (double)w * rangex;
+        targety += diffy / (double)h * rangey;
+
+        // Set last for next time
+        lastx = currentx;
+        lasty = currenty;
+    }
+}
+
+#define ZOOMSENSITIVIY 9.0
+void scrollcallback(GLFWwindow *win, double xscroll, double yscroll){
+    // Get cursor position
+    double currentx, currenty;
+    glfwGetCursorPos(win, &currentx, &currenty);
+    
+    // Get window dimensions
+    int w, h;
+    glfwGetWindowSize(win, &w, &h);
+    // Correct for glfw having down as the positive y direction
+    currenty = h - currenty;
+
+    if (yscroll > 0.0){
+        // Move the target position in around the cursor 
+        targetx += currentx / (double)w * rangex / ZOOMSENSITIVIY;
+        targety += currenty / (double)h * rangey / ZOOMSENSITIVIY;
+
+        // Reduce the ranges to zoom
+        rangex *= (ZOOMSENSITIVIY - 1.0) / ZOOMSENSITIVIY;
+        rangey *= (ZOOMSENSITIVIY - 1.0) / ZOOMSENSITIVIY;
+    } else if (yscroll < 0.0){
+        // Move the target position out around the cursor
+        targetx -= currentx / (double)w * rangex / (ZOOMSENSITIVIY - 1.0);
+        targety -= currenty / (double)h * rangey / (ZOOMSENSITIVIY - 1.0);
+
+        // Increase ranges to zoom out
+        rangex *= ZOOMSENSITIVIY / (ZOOMSENSITIVIY - 1.0); 
+        rangey *= ZOOMSENSITIVIY / (ZOOMSENSITIVIY - 1.0); 
+    }
 }
 
 int main(){
@@ -61,6 +133,9 @@ int main(){
     glViewport(0, 0, frameBufferWidth, frameBufferHeight);
     glfwSetKeyCallback(window, keycallback);
     glfwSetWindowSizeCallback(window, resizecallback);
+    glfwSetMouseButtonCallback(window, clickcallback);
+    glfwSetScrollCallback(window, scrollcallback);
+
     int vert, frag;
     int prog;
 
@@ -163,32 +238,40 @@ int main(){
     }
 
     unsigned int vbo;
+    // Create buffer to put our square mesh
     glGenBuffers(1, &vbo);
+    // Tell opengl which array buffer we're using 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // Send mesh data to bound array buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(screen), screen, GL_STATIC_DRAW);
 
+    // Bind buffer to object that describes buffer
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     
+    // Explain the data of the buffer as each element being 2 floats that are noramlized
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, 0);
     glEnableVertexAttribArray(0);  
     
-    float test = 0.0;
     while(!glfwWindowShouldClose(window)){
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Tell opengl what shaders to use
         glUseProgram(prog);
-        glBindVertexArray(vao);
+        // Send canvas info to shaders
         glUniform1f(glGetUniformLocation(prog, "targetx"), targetx);
         glUniform1f(glGetUniformLocation(prog, "targety"), targety);
         glUniform1f(glGetUniformLocation(prog, "rangex"), rangex);
         glUniform1f(glGetUniformLocation(prog, "rangey"), rangey);
+        // Tell opengl what mesh to use
+        glBindVertexArray(vao);
+        // Render current mesh with current shader program
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        test += 0.01;
-
+        // Input for movement of canvas
+        input(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
