@@ -23,7 +23,7 @@ void main(){
         iteration++;
     }
 
-    /*
+    
     vec3 above, below;
     float p = float(iteration) / float(MAXITERATIONS);
     if (p < 0.16){
@@ -42,13 +42,16 @@ void main(){
         below = vec3(255, 170, 0);
         above = vec3(0, 2, 0);
         p = (p - 0.64) / 0.21;
-    } else{
+    } else if (p < 1.0){
         below = vec3(0, 2, 0);
         above = vec3(0, 7, 100);
         p = (p - 0.85) / 0.15;
+    } else{
+        colorOut = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
     }
-    */
     
+    /*
     vec3 mapping[16] = vec3[16](vec3(66.0, 30.0, 15.0),
     vec3(25.0, 7.0, 26.0),
     vec3(9.0, 1.0, 47.0),
@@ -66,11 +69,13 @@ void main(){
     vec3(153.0, 87.0, 0.0),
     vec3(106.0, 52.0, 3.0));
 
-    //colorOut = vec4(below + (above - below) * p, 1.0);
+    
     if (iteration < MAXITERATIONS){
         colorOut = vec4(mapping[iteration % 16] / 255.0, 1.0);
     }
     else 
         colorOut = vec4(0.0, 0.0, 0.0, 1.0);
+    */
+    colorOut = vec4((below + (above - below) * p) / 255.0, 1.0);
     //colorOut = vec4(p, 0.0, 0.0, 1.0);
 }
