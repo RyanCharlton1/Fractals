@@ -21,7 +21,10 @@ Starting at $z_0 = 0 + 0i$ a point is in the set if and only if
 
 $|z_n| < 2 = x_n^2 + y_n^2 < 4, \forall n \in \N$ 
 
+To color I will take color palette in [this](https://stackoverflow.com/a/25816111) stackoverflow answer and linearly interpolate using escape time. To make the coloring smoother I take $ln(ln(|z|))$ from the iteration count and increase the escape radius, this reduces colors "banding".
+
 [Algortithm shader implementation](Mandelbrot/shaders/m.frag)
+![Example](Mandelbrot/example.png)
 ***
 ### Requirements
 
