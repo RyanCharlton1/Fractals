@@ -22,4 +22,4 @@ $0 = f'(x_n)(x_{n+1} - x_n) + f(x_n)$
 
 $x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}$
 
-This final formula is the Newton-Raphson method for finding a functions root. Using the amount interations until the root has been found to color and the screen as a complex number plane this can produce a fractal that describes the time taken to converge for the Newton-Raphson function at different values.
+This final formula is the Newton-Raphson method for finding a functions root. The fractals emerge in recording how long it takes to converge. Setting the screen as the 2d complex plane the color of a pixel can be set by the iterations taken to find the root for intensity and the root iteself to determine the color.
