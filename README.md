@@ -9,10 +9,12 @@ The complex plane colored by the behavior of a iterative fucntion.
 # Julia Set
 Mandel with a sligthly different function.
 ![Julia Example](Julia/julia.gif)
+***
 
 # Newton Fractal
 The complex plane colored by the behaivor of the Newton-Raphson method on a given function.
 ![Newton Example](Newton/example.png)
+***
 
 ### Requirements
 
