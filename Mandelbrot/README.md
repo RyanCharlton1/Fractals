@@ -20,4 +20,4 @@ $|z_n| < 2 = x_n^2 + y_n^2 < 4, \forall n \in \N$
 For color I will take the palette in [this](https://stackoverflow.com/a/25816111) stackoverflow answer and linearly interpolate using escape time. To make the coloring smoother I take $ln(ln(|z|))$(a measure of $z$'s growth) from the iteration count and increase the escape radius, this reduces colors "banding".
 
 [Algortithm shader implementation](Mandelbrot/shaders/m.frag)
-![Example](example.png)
+![](example.png)

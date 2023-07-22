@@ -255,6 +255,11 @@ int main(){
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, 0);
     glEnableVertexAttribArray(0);  
     
+    float c = 0.0;
+
+    double ftime = 0, totaltime = 0;
+    clock_t fstart, fend;
+    fstart = clock();
     while(!glfwWindowShouldClose(window)){
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -265,6 +270,10 @@ int main(){
         glUniform1f(glGetUniformLocation(prog, "targety"), targety);
         glUniform1f(glGetUniformLocation(prog, "rangex"), rangex);
         glUniform1f(glGetUniformLocation(prog, "rangey"), rangey);
+        // Give C for animating 
+        //c += ftime;
+        //c = fmodf(c, 2 * M_PI);
+        glUniform1f(glGetUniformLocation(prog, "c"), c);
         // Tell opengl what mesh to use
         glBindVertexArray(vao);
         // Render current mesh with current shader program
@@ -274,6 +283,11 @@ int main(){
         input(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        fend = clock();
+        ftime = (double)(fend - fstart) / (double)CLOCKS_PER_SEC;
+        totaltime += ftime;
+        fstart = fend;
     }
 
     glfwTerminate();
